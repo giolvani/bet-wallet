@@ -1,9 +1,10 @@
-import { createContext, useState, useContext, ReactNode } from 'react';
-import api from '@/services/api';
+import { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import api from '../services/api';
 import { useRouter } from 'next/navigation';
 
 interface AuthContextData {
     isAuthenticated: boolean;
+    isReady: boolean;
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
 }
@@ -11,16 +12,27 @@ interface AuthContextData {
 const AuthContext = createContext<AuthContextData | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    const [isReady, setIsReady] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [, setToken] = useState<string | null>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        const storedToken = localStorage.getItem('wallet-token');
+        if (storedToken) {
+            setToken(storedToken);
+            setIsAuthenticated(true);
+        }
+        setIsReady(true);
+    }, []);
 
     const login = async (email: string, password: string) => {
         try {
             const response = await api.post('/login', { email, password });
 
-            const { token } = response.data;
-            setToken(token);
+            const { accessToken } = response.data;
+            localStorage.setItem('wallet-token', accessToken);
+            setToken(accessToken);
             setIsAuthenticated(true);
 
             router.push('/dashboard');
@@ -33,11 +45,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = () => {
         setIsAuthenticated(false);
         setToken(null);
+        localStorage.removeItem('wallet-token');
         router.push('/auth/login');
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, isReady, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
