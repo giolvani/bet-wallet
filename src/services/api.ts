@@ -6,7 +6,6 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    console.log(config);
     const token = localStorage.getItem('wallet-token');
     if (token && config.url !== '/login' && config.url !== '/register') {
       config.headers.Authorization = `Bearer ${token}`;
