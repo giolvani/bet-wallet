@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             router.push('/dashboard');
         } catch (error) {
             console.error('Erro ao fazer login', error);
-            alert('Login falhou, verifique suas credenciais.');
+            throw error;
         }
     };
 
