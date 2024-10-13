@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import Analytics from '@/components/partials/Analytics';
-import Header from '@/components/partials/header';
+import Header from '@/components/partials/Header';
 import Bets from '@/components/partials/Bets';
 import Transactions from '@/components/partials/Transactions';
 

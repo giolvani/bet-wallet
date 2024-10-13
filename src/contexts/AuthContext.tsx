@@ -6,6 +6,10 @@ interface AuthContextData {
     isAuthenticated: boolean;
     isReady: boolean;
     balance: number;
+    user: {
+        name: string;
+        email: string;
+    } | null;
     updateBalance: (balance: number) => void;
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
@@ -17,6 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isReady, setIsReady] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [balance, setBalance] = useState<number>(0);
+    const [user, setUser] = useState<{ name: string; email: string } | null>(null);
     const [, setToken] = useState<string | null>(null);
     const router = useRouter();
 
@@ -35,11 +40,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             const response = await api.post('/login', { email, password });
 
-            const { accessToken, balance } = response.data;
+            const { name, accessToken, balance } = response.data;
             localStorage.setItem('wallet-token', accessToken);
             localStorage.setItem('wallet-balance', balance.toString());
+            localStorage.setItem('wallet-user', JSON.stringify({ name, email }));
             setToken(accessToken);
             setBalance(balance);
+            setUser({ name, email });
             setIsAuthenticated(true);
 
             router.push('/dashboard');
@@ -55,6 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setBalance(0);
         localStorage.removeItem('wallet-token');
         localStorage.removeItem('wallet-balance');
+        localStorage.removeItem('wallet-user');
         router.push('/auth/login');
     };
 
@@ -64,7 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isReady, login, logout, balance, updateBalance }}>
+        <AuthContext.Provider value={{ isAuthenticated, isReady, login, logout, balance, updateBalance, user }}>
             {children}
         </AuthContext.Provider>
     );
