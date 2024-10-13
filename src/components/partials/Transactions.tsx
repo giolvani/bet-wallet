@@ -57,6 +57,7 @@ export default function Transactions() {
                                             <Badge>{transaction.type}</Badge>
                                         </span>
                                     </div>
+                                    <p className="text-sm text-muted-foreground">{transaction.id}</p>
                                 </div>
                                 <div className="ml-auto text-sm">R$ {Number(transaction.amount).toFixed(2)}</div>
                             </div>

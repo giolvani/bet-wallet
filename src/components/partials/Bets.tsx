@@ -112,7 +112,7 @@ export default function Bets() {
                 <CardContent className="flex flex-col flex-grow">
                     {data.length > 0 ? (
                         <>
-                            <div className="space-y-1 flex-grow">
+                            <div className="space-y-4 flex-grow">
                                 {data.map((bet) => (
                                     <div key={bet.id} className="flex items-center">
                                         <div className="space-y-1">
@@ -122,8 +122,9 @@ export default function Bets() {
                                                     <Badge>{bet.status}</Badge>
                                                 </span>
                                             </div>
+                                            <p className="text-sm text-muted-foreground">{bet.id}</p>
                                         </div>
-                                        <div className="ml-auto text-sm">R$ {Number(bet.amount).toFixed(2)}</div>
+                                        <div className="ml-auto text-sm">R$ {Number(bet.amount).toFixed(2)} / {bet.winAmount ? Number(bet.winAmount).toFixed(2) : '0,00'}</div>
                                         <Button onClick={() => handleCancelBet(bet.id)} size="sm" variant="destructive" className="ml-4" disabled={bet.status === 'canceled'}>
                                             <CircleBackslashIcon />
                                         </Button>
