@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
+import Link from 'next/link';
 import api from '@/services/api';
 
 const RegisterPage = () => {
@@ -97,7 +98,7 @@ const RegisterPage = () => {
                             </AlertDescription>
                         </Alert>
                     )}
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} noValidate>
                         {/* trick to avoid form autofill */}
                         <input type="email" name="email" autoComplete="off" className="fixed -top-80" />
                         <input type="password" name="password" autoComplete="off" className="fixed -top-80" />
@@ -155,6 +156,11 @@ const RegisterPage = () => {
                         </div>
                     </form>
                 </CardContent>
+                <CardFooter className="flex-col">
+                    <Link href="/auth/login" className="text-sm text-blue-600 hover:underline">
+                        Já tem uma conta? Faça login
+                    </Link>
+                </CardFooter>
             </Card>
         </div>
     );

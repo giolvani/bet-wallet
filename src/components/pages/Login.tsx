@@ -15,15 +15,42 @@ const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        let hasError = false;
+        setEmailError('');
+        setPasswordError('');
+
+        if (!email) {
+            hasError = true;
+            setEmailError('Email é obrigatório.');
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                hasError = true;
+                setEmailError('Email inválido.');
+            }
+        }
+        if (!password) {
+            hasError = true;
+            setPasswordError('Senha é obrigatória.');
+        } else if (password.length < 6) {
+            hasError = true;
+            setPasswordError('A senha deve ter pelo menos 6 caracteres.');
+        }
+
+        if (hasError) {
+            return;
+        }
+
         try {
             await login(email, password);
         } catch {
             setErrorMessage('Login falhou. Verifique suas credenciais.');
         }
-
     };
 
     return (
@@ -41,7 +68,7 @@ const LoginPage = () => {
                             </AlertDescription>
                         </Alert>
                     )}
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
@@ -52,6 +79,7 @@ const LoginPage = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
+                                {emailError && <div className="text-xs font-medium text-destructive">{emailError}</div>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="password">Senha</Label>
@@ -62,17 +90,16 @@ const LoginPage = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
+                                {passwordError && <div className="text-xs font-medium text-destructive">{passwordError}</div>}
                             </div>
                             <Button type="submit" className="w-full">
                                 Entrar
                             </Button>
-
                         </div>
                     </form>
-
                 </CardContent>
                 <CardFooter className="flex-col">
-                    <Link href="/auth/register" className="text-blue-600 hover:underline">
+                    <Link href="/auth/register" className="text-sm text-blue-600 hover:underline">
                         Não tem uma conta? Cadastre-se
                     </Link>
                 </CardFooter>
