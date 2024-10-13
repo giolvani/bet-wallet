@@ -1,11 +1,15 @@
 import { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import api from '../services/api';
 import { useRouter } from 'next/navigation';
+import { User } from '@/types/User';
+import { Token } from '@/types/Token';
 
 interface AuthContextData {
     isAuthenticated: boolean;
     isReady: boolean;
+    token: Token | null;
     balance: number;
+    user: User | null;
     updateBalance: (balance: number) => void;
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
@@ -17,15 +21,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isReady, setIsReady] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [balance, setBalance] = useState<number>(0);
-    const [, setToken] = useState<string | null>(null);
+    const [token, setToken] = useState<Token | null>(null);
+    const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
 
     useEffect(() => {
-        const storedToken = localStorage.getItem('wallet-token');
-        const storedBalance = localStorage.getItem('wallet-balance');
+        const storedToken: Token = JSON.parse(localStorage.getItem('wallet-token') || 'null') as Token;
         if (storedToken) {
             setToken(storedToken);
-            setBalance(storedBalance ? parseFloat(storedBalance) : 0);
+            setBalance(storedToken.balance);
+            setUser(storedToken.user);
             setIsAuthenticated(true);
         }
         setIsReady(true);
@@ -35,26 +40,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             const response = await api.post('/login', { email, password });
 
-            const { accessToken, balance } = response.data;
-            localStorage.setItem('wallet-token', accessToken);
-            localStorage.setItem('wallet-balance', balance.toString());
-            setToken(accessToken);
-            setBalance(balance);
+            const { name, accessToken, balance } = response.data;
+            const token: Token = { accessToken, balance, user: { name, email } };
+
+            setToken(token);
+            setUser(token.user);
+            setBalance(token.balance);
             setIsAuthenticated(true);
+            localStorage.setItem('wallet-token', JSON.stringify(token));
 
             router.push('/dashboard');
         } catch (error) {
             console.error('Erro ao fazer login', error);
-            alert('Login falhou, verifique suas credenciais.');
+            throw error;
         }
     };
 
     const logout = () => {
         setToken(null);
-        setIsAuthenticated(false);
         setBalance(0);
+        setUser(null);
+        setIsAuthenticated(false);
         localStorage.removeItem('wallet-token');
         localStorage.removeItem('wallet-balance');
+        localStorage.removeItem('wallet-user');
         router.push('/auth/login');
     };
 
@@ -64,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isReady, login, logout, balance, updateBalance }}>
+        <AuthContext.Provider value={{ isAuthenticated, isReady, login, logout, user, token, balance, updateBalance }}>
             {children}
         </AuthContext.Provider>
     );
