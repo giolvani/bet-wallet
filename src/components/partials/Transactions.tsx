@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import api from "@/services/api";
 
 interface Transaction {
@@ -15,6 +16,7 @@ interface Transaction {
 
 export default function Transactions() {
     const limit = 5
+    const { balance } = useAuth();
     const [data, setData] = useState<Transaction[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [total, setTotal] = useState(1);
@@ -22,7 +24,7 @@ export default function Transactions() {
     useEffect(() => {
         fetchTransactions();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentPage]);
+    }, [currentPage, balance]);
 
     const fetchTransactions = async () => {
         try {
@@ -62,7 +64,7 @@ export default function Transactions() {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="ml-auto text-sm">R$ {transaction.amount.toFixed(2)}</div>
+                                <div className="ml-auto text-sm">R$ {Number(transaction.amount).toFixed(2)}</div>
                             </div>
                         ))}
                     </div>
@@ -77,7 +79,7 @@ export default function Transactions() {
                     </div>
                 </>
             ) : (
-                <div className="space-y-8"><p className="text-sm">Nenhuma transação encontrada.</p></div>
+                <div className="mt-auto flex"><p className="text-sm">Nenhuma transação encontrada.</p></div>
             )}
         </CardContent>
     </Card>;
