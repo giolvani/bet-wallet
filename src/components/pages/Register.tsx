@@ -17,12 +17,50 @@ const RegisterPage = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [nameError, setNameError] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (password !== confirmPassword) {
-            setErrorMessage('As senhas não coincidem.');
+        let hasError = false;
+        setNameError('');
+        setEmailError('');
+        setPasswordError('');
+        setConfirmPasswordError('');
+
+        if (!name) {
+            hasError = true;
+            setNameError('Nome é obrigatório.');
+        }
+        if (!email) {
+            hasError = true;
+            setEmailError('Email é obrigatório.');
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                hasError = true;
+                setEmailError('Email inválido.');
+            }
+        }
+        if (!password) {
+            hasError = true;
+            setPasswordError('Senha é obrigatória.');
+        } else if (password.length < 6) {
+            hasError = true;
+            setPasswordError('A senha deve ter pelo menos 6 caracteres.');
+        }
+        if (!confirmPassword) {
+            hasError = true;
+            setConfirmPasswordError('Confirmação de senha é obrigatória.');
+        } else if (password !== confirmPassword) {
+            hasError = true;
+            setConfirmPasswordError('As senhas não coincidem.');
+        }
+
+        if (hasError) {
             return;
         }
 
@@ -37,8 +75,9 @@ const RegisterPage = () => {
             if (response.status === 200) {
                 router.push('/auth/login');
             }
-        } catch (error) {
-            setErrorMessage('Erro ao registrar. Tente novamente.');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            setErrorMessage(`${error.response.data.message || 'Erro ao registrar.'}. Tente novamente.`);
             console.error('Erro de registro', error);
         }
     };
@@ -73,6 +112,7 @@ const RegisterPage = () => {
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                 />
+                                {nameError && <div className="text-xs font-medium text-destructive">{nameError}</div>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
@@ -83,6 +123,7 @@ const RegisterPage = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
+                                {emailError && <div className="text-xs font-medium text-destructive">{emailError}</div>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="password">Senha</Label>
@@ -93,6 +134,7 @@ const RegisterPage = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
+                                {passwordError && <div className="text-xs font-medium text-destructive">{passwordError}</div>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="confirmPassword">Confirmar Senha</Label>
@@ -103,6 +145,7 @@ const RegisterPage = () => {
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                 />
+                                {confirmPasswordError && <div className="text-xs font-medium text-destructive">{confirmPasswordError}</div>}
                             </div>
 
                             {/* {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>} */}
