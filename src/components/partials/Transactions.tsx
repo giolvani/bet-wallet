@@ -5,14 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { Transaction } from "@/types/Transaction";
 import api from "@/services/api";
-
-interface Transaction {
-    id: string;
-    amount: number;
-    type: string;
-    createdAt: string;
-}
 
 export default function Transactions() {
     const limit = 5

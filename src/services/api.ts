@@ -1,3 +1,4 @@
+import { Token } from '@/types/Token';
 import axios from 'axios';
 
 const api = axios.create({
@@ -6,9 +7,9 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('wallet-token');
+    const token: Token = JSON.parse(localStorage.getItem('wallet-token') || 'null') as Token;
     if (token && config.url !== '/login' && config.url !== '/register') {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token.accessToken}`;
     }
     return config;
   },

@@ -9,14 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import api from "@/services/api";
-
-interface Bet {
-    id: string;
-    amount: number;
-    status: string;
-    createdAt: string;
-    winAmount: number | null;
-}
+import { Bet } from "@/types/Bet";
 
 export default function Bets() {
     const limit = 5;
