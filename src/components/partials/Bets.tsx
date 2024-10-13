@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { CircleBackslashIcon } from "@radix-ui/react-icons";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,8 +9,8 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
-import api from "@/services/api";
 import { Bet } from "@/types/Bet";
+import api from "@/services/api";
 
 export default function Bets() {
     const limit = 5;
@@ -19,6 +20,7 @@ export default function Bets() {
     const [total, setTotal] = useState(1);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [betAmount, setBetAmount] = useState('');
+    const [error, setError] = useState('');
 
     useEffect(() => {
         fetchBets();
@@ -45,10 +47,15 @@ export default function Bets() {
     const handlePlaceBet = async () => {
         try {
             const response = await api.post('/bet', { amount: Number(betAmount) });
+            setBetAmount('');
             updateBalance(response.data.balance);
             setIsDialogOpen(false);
             fetchBets();
-        } catch (error) {
+            toast.success("Aposta realizada com sucesso.", { duration: 2000 });
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            setError(`Erro: ${error.response.data.message}`);
             console.error('Erro ao fazer a aposta', error);
         }
     };
@@ -86,7 +93,9 @@ export default function Bets() {
                                         placeholder="Valor da aposta"
                                         value={betAmount}
                                         onChange={(e) => setBetAmount(e.target.value)}
+                                        onKeyDown={() => setError('')}
                                     />
+                                    {error && <div className="text-sm font-medium text-destructive">{error}</div>}
                                 </div>
 
                                 <DialogFooter>
